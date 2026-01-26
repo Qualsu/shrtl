@@ -1,101 +1,100 @@
+"use client";
+
 import Image from "next/image";
+import Header from "./_components/header";
+import Footer from "./_components/footer";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Copy, Eye } from "lucide-react";
+import { toast } from "react-hot-toast";
+import { useAuth } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { isSignedIn } = useAuth();
+  const router = useRouter();
+  const [url, setUrl] = useState("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const handleShorten = () => {
+    if (!isSignedIn) {
+      router.push("/auth/sign-in");
+      return;
+    }
+
+    if (!url.trim()) {
+      toast.error("Введите ссылку", {
+        iconTheme: {
+          primary: '#09090b',
+          secondary: '#FFF',
+        },
+      });
+      return;
+    }
+
+    try {
+      new URL(url);
+    } catch {
+      toast.error("Введите корректную ссылку", {
+        iconTheme: {
+          primary: '#09090b',
+          secondary: '#FFF',
+        },
+      });
+      return;
+    }
+  };
+
+  const handleCopyLink = (link: string) => {
+    navigator.clipboard.writeText(link);
+    toast.success("Ссылка скопирована!", {
+      iconTheme: {
+        primary: '#09090b',
+        secondary: '#FFF',
+      },
+    });
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1 flex flex-col items-center justify-center px-4">
+        <div className="bg-white dark:bg-zinc-950 rounded-lg p-8 w-full max-w-md border-2 border-black dark:border-white dark:border-opacity-10 border-opacity-10">
+          <Image src="/logo.svg" alt="Shortul Logo" width={160} height={40} className="mb-3"/>
+          <p className="mb-6">Сокрщайте и еще раз сокращайте</p>
+          
+          <Input 
+            placeholder="Введите ссылку" 
+            className="mb-4"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <Button 
+            className="w-full mb-6"
+            onClick={handleShorten}
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Сократить
+          </Button>
+          
+          <h2 className="text-lg font-bold mb-4">Недавние ссылки</h2>
+          
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-3 border-black dark:border-white border-2 dark:border-opacity-10 border-opacity-10 rounded">
+              <a href="#" className="text-blue-500 hover:underline text-sm">https://shrtl.ru/12345</a>
+              <div className="flex gap-3 items-center text-xs">
+              <Copy 
+                size={16} 
+                className="cursor-pointer hover:scale-105" 
+                onClick={() => handleCopyLink("https://shrtl.ru/12345")}
+              />
+              <Eye size={16} />
+              <span>1 views</span>
+            </div>
+          </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      <Footer />
     </div>
   );
 }
