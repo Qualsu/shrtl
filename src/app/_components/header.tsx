@@ -6,7 +6,7 @@ import Link from "next/link";
 
 export default function Header() {
   return (
-    <nav className="flex items-center justify-between p-4 border-b-black dark:border-b-white border-2 dark:border-opacity-10 border-opacity-10 dark:bg-zinc-950">
+    <nav className="flex items-center justify-between p-4 border-b-black dark:border-b-white border-b-2 dark:border-opacity-10 border-opacity-10 dark:bg-zinc-950">
         <Link href="/">
             <Image src="/mini-logo.svg" alt="Shortul Logo" width={40} height={40} />
         </Link>

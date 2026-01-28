@@ -10,6 +10,9 @@ const font = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: "Shrtl",
   description: "Сокращай и еще раз сокращай",
+  icons: {
+    icon: "https://qual.su/logo/shrtl.svg",
+  },
 };
 
 export default function RootLayout({
