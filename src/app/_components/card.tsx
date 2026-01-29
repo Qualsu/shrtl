@@ -75,7 +75,7 @@ export default function UrlCard({
   };
 
   return (
-    <div className="flex items-center justify-between p-2.5 border-black dark:border-white border-2 dark:border-opacity-10 border-opacity-10 rounded">
+    <div className="flex items-center justify-between p-2.5 border-black dark:border-white border-2 dark:border-opacity-10 border-opacity-10 rounded flex-row max-[400px]:flex-col">
       <a href={`${baseUrl}/${shortId}`} target="_blank" className="text-blue-500 hover:underline text-sm">
         {baseUrl}/{shortId}
       </a>
