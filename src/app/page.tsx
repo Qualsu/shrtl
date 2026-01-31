@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import UrlCard from "./_components/card";
 import { createUrl, getAll, URLItem } from "../../server/urls";
+import { getUser } from "../../server/users";
 import { Loader2 } from "lucide-react";
 
 export default function Home() {
@@ -20,6 +21,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [urls, setUrls] = useState<URLItem[]>([]);
   const [isLoadingUrls, setIsLoadingUrls] = useState(true);
+  const [userUrlCount, setUserUrlCount] = useState(0);
 
   useEffect(() => {
     if (isSignedIn && userId) {
@@ -34,6 +36,9 @@ export default function Home() {
       setIsLoadingUrls(true);
       const data = await getAll(userId!);
       setUrls(data.urls || []);
+      
+      const userData = await getUser(userId!);
+      setUserUrlCount(userData.urls || 0);
     } catch (error) {
       console.error("Ошибка при загрузке ссылок:", error);
     } finally {
@@ -44,6 +49,16 @@ export default function Home() {
   const handleShorten = async () => {
     if (!isSignedIn) {
       router.push("/auth/sign-in");
+      return;
+    }
+
+    if (userUrlCount >= 100) {
+      toast.error("Лимит превышен", {
+        iconTheme: {
+          primary: '#09090b',
+          secondary: '#FFF',
+        },
+      });
       return;
     }
 
@@ -131,7 +146,14 @@ export default function Home() {
             {isLoading ? "Сокращение..." : "Сократить"}
           </Button>
           
-          <h2 className="text-lg font-bold mb-4">Недавние ссылки</h2>
+          <h2 className="text-lg font-bold mb-4">
+            Недавние ссылки
+            {userUrlCount >= 90 && (
+              <span className={`ml-2 text-sm font-normal ${userUrlCount >= 100 ? 'text-red-500' : 'text-zinc-600 dark:text-zinc-400'}`}>
+                {userUrlCount >= 100 ? 'Лимит превышен' : `${userUrlCount}/100`}
+              </span>
+            )}
+          </h2>
           
           <div className="space-y-3">
             {isLoadingUrls ? (
