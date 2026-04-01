@@ -13,15 +13,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Copy, Eye, X, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
-import { deleteUrl } from "../../../server/urls";
-
-interface UrlCardProps {
-  url: string;
-  views: number;
-  shortId: string;
-  onCopy?: () => void;
-  onDelete?: (shortId: string) => void;
-}
+import { deleteUrl } from "../api/urls";
+import Link from "next/link";
+import { pages } from "@/config/routing/pages.route";
+import { toastConfig } from "@/config/const/toast.const";
+import { useAuth } from "@clerk/nextjs";
+import { UrlCardProps } from "@/config/types/components.types";
 
 export default function UrlCard({
   url,
@@ -30,6 +27,7 @@ export default function UrlCard({
   onCopy,
   onDelete,
 }: UrlCardProps) {
+  const { userId } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [baseUrl, setBaseUrl] = useState("");
@@ -39,60 +37,59 @@ export default function UrlCard({
   }, []);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(`${baseUrl}/${shortId}`);
-    toast.success("Ссылка скопирована!", {
-      iconTheme: {
-        primary: "#09090b",
-        secondary: "#FFF",
-      },
-    });
+    navigator.clipboard.writeText(pages.SHRTL(baseUrl, shortId));
+    toast.success("Ссылка скопирована!", toastConfig);
     onCopy?.();
   };
 
   const handleDeleteLink = async () => {
+    if (!userId) {
+      toast.error("Нужно войти в аккаунт", toastConfig);
+      return;
+    }
+
     setIsDeleting(true);
     try {
-      await deleteUrl(shortId);
-      toast.success("Ссылка удалена!", {
-        iconTheme: {
-          primary: "#09090b",
-          secondary: "#FFF",
-        },
-      });
+      await deleteUrl(userId, shortId);
+      toast.success("Ссылка удалена!", toastConfig);
       setShowDeleteDialog(false);
       onDelete?.(shortId);
     } catch (error) {
       console.error("Ошибка при удалении ссылки:", error);
-      toast.error("Ошибка при удалении ссылки", {
-        iconTheme: {
-          primary: "#09090b",
-          secondary: "#FFF",
-        },
-      });
+      toast.error("Ошибка при удалении ссылки", toastConfig);
     } finally {
       setIsDeleting(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-between p-2.5 border-black dark:border-white border-2 dark:border-opacity-10 border-opacity-10 rounded flex-row max-[400px]:flex-col">
-      <a href={`${baseUrl}/${shortId}`} target="_blank" className="text-blue-500 hover:underline text-sm">
-        {baseUrl}/{shortId}
-      </a>
-      <div className="flex gap-3 items-center text-xs">
-        <Copy
-          size={16}
-          className="cursor-pointer hover:scale-105"
+    <div className="flex flex-row items-center justify-between gap-3 rounded-2xl border border-border/90 bg-background/60 p-3 max-[480px]:flex-col max-[480px]:items-start">
+      <Link href={pages.SHRTL(baseUrl, shortId)} target="_blank" className="text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline">
+        {baseUrl ? `${baseUrl}/${shortId}` : `/${shortId}`}
+      </Link>
+      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <button
+          type="button"
+          aria-label="Скопировать короткую ссылку"
+          className="rounded-full p-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
           onClick={handleCopyLink}
-        />
+        >
+          <Copy size={15} />
+        </button>
 
-        <span className="flex flex-row gap-x-1">
-          <Eye size={16} /> {views} views
+        <span className="flex flex-row items-center gap-x-1.5">
+          <Eye size={15} /> {views} views
         </span>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogTrigger asChild>
-            <X size={20} className="cursor-pointer hover:scale-110 text-red-500" />
+            <button
+              type="button"
+              aria-label="Удалить ссылку"
+              className="rounded-full p-1.5 text-destructive transition-colors hover:bg-destructive/15"
+            >
+              <X size={16} />
+            </button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>

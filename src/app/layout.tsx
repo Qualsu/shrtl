@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
-import { Inter } from 'next/font/google'
+import { Manrope } from 'next/font/google'
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
 import { ClerkThemeProvider } from "@/components/clerk-theme-provider";
 import { Toaster } from "react-hot-toast";
 
-const font = Inter({ subsets: ['latin'] })
+const font = Manrope({ subsets: ['latin', 'cyrillic'] })
 
 export const metadata: Metadata = {
   title: "Shrtl",
   description: "Сокращай и еще раз сокращай",
   icons: {
-    icon: "https://qual.su/logo/shrtl.svg",
+    icon: "/icon.svg",
   },
 };
 
@@ -22,7 +22,6 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkThemeProvider>
-      
         <html lang="ru">
           <body className={`${font.className} antialiased`}>
             <ThemeProvider
