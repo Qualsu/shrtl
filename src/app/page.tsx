@@ -326,6 +326,8 @@ export default function Home() {
                     </p>
                   )}
                 </div>
+
+                <p className="text-sm text-white/50 mt-3">Все файлы хранятся 7 дней после загрузки</p>
               </TabsContent>
             </Tabs>
           </div>
