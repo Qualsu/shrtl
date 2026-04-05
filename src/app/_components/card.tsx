@@ -37,7 +37,7 @@ export default function UrlCard({
   }, []);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(pages.SHRTL(baseUrl, shortId));
+    navigator.clipboard.writeText(pages.URL(baseUrl, shortId));
     toast.success("Ссылка скопирована!", toastConfig);
     onCopy?.();
   };
@@ -64,7 +64,7 @@ export default function UrlCard({
 
   return (
     <div className="flex flex-row items-center justify-between gap-3 rounded-2xl border border-border/90 bg-background/60 p-3 max-[480px]:flex-col max-[480px]:items-start">
-      <Link href={pages.SHRTL(baseUrl, shortId)} target="_blank" className="text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline">
+      <Link href={pages.URL(baseUrl, shortId)} target="_blank" className="text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline">
         {baseUrl ? `${baseUrl}/${shortId}` : `/${shortId}`}
       </Link>
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -78,7 +78,7 @@ export default function UrlCard({
         </button>
 
         <span className="flex flex-row items-center gap-x-1.5">
-          <Eye size={15} /> {views} views
+          <Eye size={15} /> {views} Просмотров
         </span>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

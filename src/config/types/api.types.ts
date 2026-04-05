@@ -14,4 +14,6 @@ export interface FileItem {
   file_name: string;
   file_size: number;
   account_id?: string;
+  downloads: number;
+  expires_in_seconds: number
 }

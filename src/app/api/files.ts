@@ -8,7 +8,7 @@ export async function getAllFiles(account_id: string) {
 
 export async function getFile(short_id: string) {
   const res = await api.get(API.FILES.GET(short_id));
-  return res.data;
+  return res;
 }
 
 export async function uploadFile(account_id: string, file: File) {

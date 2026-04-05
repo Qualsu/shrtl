@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,19 +16,46 @@ import { toast } from "react-hot-toast";
 import { deleteFile } from "../api/files";
 import { toastConfig } from "@/config/const/toast.const";
 import { useAuth } from "@clerk/nextjs";
-import { API } from "@/config/routing/api.route";
-import { API_URL } from "@/config/const/api.const";
 import Link from "next/link";
 import { FileCardProps } from "@/config/types/components.types";
+import { pages } from "@/config/routing/pages.route";
 
-export default function FileCard({ shortId, file_name, file_size: _size, onDelete }: FileCardProps) {
+const formatRemaining = (secs: number) => {
+  if (secs <= 0) return "Истёк";
+  const days = Math.floor(secs / 86400);
+  const hours = Math.floor((secs % 86400) / 3600);
+  const minutes = Math.floor((secs % 3600) / 60);
+  const seconds = secs % 60;
+  if (days > 0) return `${days}д ${hours}ч ${minutes}м`;
+  if (hours > 0) return `${hours}ч ${minutes}м`;
+  if (minutes > 0) return `${minutes}м ${seconds}с`;
+  return `${seconds}с`;
+};
+
+export default function FileCard({ shortId, file_name, file_size: _size, downloads, expired, onDelete }: FileCardProps) {
   const { userId } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const fileUrl = `${API_URL}${API.FILES.GET(shortId)}`;
+  const [remaining, setRemaining] = useState<number>(expired);
+
+  useEffect(() => {
+    setRemaining(expired);
+  }, [expired]);
+
+  useEffect(() => {
+    if (remaining <= 0) return;
+    const id = setInterval(() => {
+      setRemaining((r) => (r > 0 ? r - 1 : 0));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [remaining]);
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const fileUrl = pages.FILE(origin, shortId);
 
   const openFile = () => {
+    if (showDeleteDialog) return;
     window.open(fileUrl, "_blank");
   };
 
@@ -58,19 +85,20 @@ export default function FileCard({ shortId, file_name, file_size: _size, onDelet
   };
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={openFile}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openFile();
-        }
-      }}
-      className="flex cursor-pointer flex-row items-center justify-between gap-3 rounded-2xl border border-border/90 bg-background/60 p-3 max-[480px]:flex-col max-[480px]:items-start"
-    >
-      <div className="flex items-center gap-2 min-w-0">
+    <div className={`rounded-2xl border border-border/90 bg-background/60 p-3 ${showDeleteDialog ? 'pointer-events-none opacity-80' : ''}`}>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={openFile}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            openFile();
+          }
+        }}
+        className="flex cursor-pointer flex-row items-center justify-between gap-3 max-[480px]:flex-col max-[480px]:items-start"
+      >
+        <div className="flex items-center gap-2 min-w-0">
         <File size={15} className="shrink-0 text-muted-foreground" />
         <Link
           href={fileUrl}
@@ -86,7 +114,7 @@ export default function FileCard({ shortId, file_name, file_size: _size, onDelet
         <button
           type="button"
           aria-label="Скопировать ссылку на файл"
-          className="rounded-full p-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
+          className="rounded-full h-8 w-8 flex items-center justify-center transition-colors hover:bg-accent/60 hover:text-foreground"
           onClick={(e) => {
             e.stopPropagation();
             handleCopyLink();
@@ -94,23 +122,26 @@ export default function FileCard({ shortId, file_name, file_size: _size, onDelet
         >
           <Copy size={15} />
         </button>
-
-        <Link
-          href={fileUrl}
-          target="_blank"
-          aria-label="Скачать файл"
-          onClick={(e) => e.stopPropagation()}
-          className="rounded-full p-1.5 transition-colors hover:bg-accent/60 hover:text-foreground"
-        >
-          <Download size={15} />
-        </Link>
+        
+        <div className="flex flex-row items-center gap-1 whitespace-nowrap">
+          <Link
+            href={fileUrl}
+            target="_blank"
+            aria-label="Скачать файл"
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-full h-8 w-8 flex items-center justify-center transition-colors hover:bg-accent/60 hover:text-foreground"
+          >
+            <Download size={15} /> 
+          </Link>
+          {downloads} <span>Скачиваний</span>
+        </div>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <AlertDialogTrigger asChild>
             <button
               type="button"
               aria-label="Удалить файл"
-              className="rounded-full p-1.5 text-destructive transition-colors hover:bg-destructive/15"
+                className="rounded-full h-8 w-8 flex items-center justify-center text-destructive transition-colors hover:bg-destructive/15"
               onClick={(e) => e.stopPropagation()}
             >
               <X size={16} />
@@ -139,7 +170,10 @@ export default function FileCard({ shortId, file_name, file_size: _size, onDelet
             </div>
           </AlertDialogContent>
         </AlertDialog>
+        </div>
       </div>
+
+      <div className="w-full text-xs text-muted-foreground mt-2">Осталось: {formatRemaining(remaining)}</div>
     </div>
   );
 }

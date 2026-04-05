@@ -22,6 +22,7 @@ import { links } from "@/config/routing/links.route";
 import { Upload } from "lucide-react";
 
 const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
+const TAB_STORAGE_KEY = "shrtl.activeTab"
 
 export default function Home() {
   const { isLoaded, isSignedIn, userId } = useAuth();
@@ -33,6 +34,7 @@ export default function Home() {
   const [isLoadingUrls, setIsLoadingUrls] = useState(true);
   const [exceeded, setExceeded] = useState(false);
   const [exceededFiles, setExceededFiles] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("urls");
 
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(true);
@@ -54,6 +56,11 @@ export default function Home() {
       setIsLoadingFiles(false);
     }
   }, [isLoaded, isSignedIn, userId]);
+
+    useEffect(() => {
+      const saved = sessionStorage.getItem(TAB_STORAGE_KEY);
+      if (saved) setActiveTab(saved);
+    }, []);
 
   const loadUrls = async (accountId: string) => {
     try {
@@ -178,7 +185,8 @@ export default function Home() {
               Быстро сокращайте ссылки и держите всё под рукой без лишнего шума
             </p>
 
-            <Tabs defaultValue="urls">
+      
+            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); try { sessionStorage.setItem(TAB_STORAGE_KEY, v); } catch (e) {} }}>
               <TabsList className="mb-6 w-full">
                 <TabsTrigger value="urls" className="flex-1">Ссылки</TabsTrigger>
                 <TabsTrigger value="files" className="flex-1">Файлы</TabsTrigger>
@@ -314,6 +322,8 @@ export default function Home() {
                         file_name={file.file_name}
                         file_size={file.file_size}
                         onDelete={(id) => setFiles(files.filter(f => f.short_id !== id))}
+                        downloads={file.downloads}
+                        expired={file.expires_in_seconds}
                       />
                     ))
                   ) : isSignedIn ? (
@@ -326,8 +336,6 @@ export default function Home() {
                     </p>
                   )}
                 </div>
-
-                <p className="text-sm text-white/50 mt-3">Все файлы хранятся 7 дней после загрузки</p>
               </TabsContent>
             </Tabs>
           </div>
