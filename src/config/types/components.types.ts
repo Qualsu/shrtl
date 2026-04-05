@@ -10,5 +10,7 @@ export interface FileCardProps {
   shortId: string;
   file_name: string;
   file_size: number;
+  downloads: number;
+  expired: number;
   onDelete?: (shortId: string) => void;
 }
