@@ -15,10 +15,10 @@ import { Copy, Eye, X, Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { deleteUrl } from "../api/urls";
 import Link from "next/link";
-import { pages } from "@/config/routing/pages.route";
 import { toastConfig } from "@/config/const/toast.const";
 import { useAuth } from "@clerk/nextjs";
 import { UrlCardProps } from "@/config/types/components.types";
+import { links } from "@/config/routing/links.route";
 
 export default function UrlCard({
   url,
@@ -37,7 +37,7 @@ export default function UrlCard({
   }, []);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(pages.URL(baseUrl, shortId));
+    navigator.clipboard.writeText(links.GET_URL(shortId));
     toast.success("Ссылка скопирована!", toastConfig);
     onCopy?.();
   };
@@ -64,7 +64,7 @@ export default function UrlCard({
 
   return (
     <div className="flex flex-row items-center justify-between gap-3 rounded-2xl border border-border/90 bg-background/60 p-3 max-[480px]:flex-col max-[480px]:items-start">
-      <Link href={pages.URL(baseUrl, shortId)} target="_blank" className="text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline">
+      <Link href={links.GET_URL(shortId)} target="_blank" className="text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline">
         {baseUrl ? `${baseUrl}/${shortId}` : `/${shortId}`}
       </Link>
       <div className="flex items-center gap-3 text-xs text-muted-foreground">

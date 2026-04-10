@@ -19,6 +19,7 @@ import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { FileCardProps } from "@/config/types/components.types";
 import { pages } from "@/config/routing/pages.route";
+import { links } from "@/config/routing/links.route";
 
 const formatRemaining = (secs: number) => {
   if (secs <= 0) return "Истёк";
@@ -51,8 +52,7 @@ export default function FileCard({ shortId, file_name, file_size: _size, downloa
     return () => clearInterval(id);
   }, [remaining]);
 
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const fileUrl = pages.FILE(origin, shortId);
+  const fileUrl = links.GET_FILE(shortId);
 
   const openFile = () => {
     if (showDeleteDialog) return;

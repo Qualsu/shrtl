@@ -2,11 +2,11 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { getUrl } from "../api/urls";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { pages } from "@/config/routing/pages.route";
+import { getUrl } from "@/app/api/urls";
 
 export default function RedirectPage() {
   const router = useRouter();

@@ -8,16 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { pages } from "@/config/routing/pages.route";
 import { getFile } from "@/app/api/files";
-import { API_URL } from "@/config/const/api.const";
-
-const parseFilename = (header?: string | null) => {
-    if (!header) return "";
-    const star = header.match(/filename\*=[^']*''([^;\n\r]+)/i);
-    if (star && star[1]) return decodeURIComponent(star[1].trim().replace(/\"/g, ""));
-    const normal = header.match(/filename=\s*\"?([^\";]+)\"?/i);
-    if (normal && normal[1]) return normal[1].trim();
-    return "";
-};
+import { links } from "@/config/routing/links.route";
 
 const formatSize = (len: number) => {
     if (len >= 10 ** 6) return `${(len / 10 ** 6).toFixed(2)} MB`
@@ -32,7 +23,6 @@ export default function RedirectPage() {
 
   const [size, setSize] = useState("");
   const [fileName, setFileName] = useState("");
-  const [file, setFile] = useState(null);
   const [isImage, setIsImage] = useState(false);
   
   useEffect(() => {
@@ -41,20 +31,14 @@ export default function RedirectPage() {
 
     const redirect = async () => {
       try {
-        const file = await getFile(id);
+        const response = await getFile(id);
+        const file = response.data
 
-        const contentDisp = file.headers["content-disposition"];
-        const contentLen = file.headers["content-length"];
-        const contentType = file.headers["content-type"];
-        const parsedLen = Number(contentLen) || 0
-        
-        const size = formatSize(parsedLen)
-        const fileName = parseFilename(contentDisp);
-        const isImage = (contentType || "").startsWith("image/")
+        const size = formatSize(file.file_size)
+        const isImage = (file.file_type).startsWith("image/")
 
-        setFileName(fileName);
+        setFileName(file.filename);
         setSize(size);
-        setFile(file.data);
         setIsImage(isImage);
 
       } catch (error) {
@@ -80,11 +64,11 @@ export default function RedirectPage() {
     );
   }
 
-  const fileLink = API_URL ? `${API_URL}/files/${id}` : `/api/files/${id}`
+  const fileLink = links.GET_FILELINK(id);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center m-3">
-      {!file ? (
+      {!fileName ? (
         <Loader2 className="w-8 h-8 animate-spin" />
         ) : (
         <section className="w-full max-w-3xl mx-auto p-6 bg-background/60 border border-border/90 rounded-3xl shadow-[0_16px_80px_-45px_rgba(0,0,0,0.7)]">
