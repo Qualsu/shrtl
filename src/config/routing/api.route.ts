@@ -11,7 +11,7 @@ export const API = {
     },
     FILES: {
         GET_ALL: (account_id: string) => `/files/get_all/${account_id}`,
-        GET: (short_id: string) => `/files/${short_id}`,
+        GET: (short_id: string) => `/files/get/${short_id}`,
         UPLOAD: "/files/upload",
         DELETE: "/files/delete"
     }

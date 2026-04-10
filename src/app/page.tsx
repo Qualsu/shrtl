@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { createUrl, getAll } from "./api/urls";
 import { getAllFiles, uploadFile } from "./api/files";
@@ -20,13 +20,15 @@ import { images } from "@/config/routing/images.route";
 import { toastConfig } from "@/config/const/toast.const";
 import { links } from "@/config/routing/links.route";
 import { Upload } from "lucide-react";
+import { pages } from "@/config/routing/pages.route";
 
-const MAX_FILE_SIZE_BYTES = 15 * 1024 * 1024;
-const TAB_STORAGE_KEY = "shrtl.activeTab"
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
 export default function Home() {
   const { isLoaded, isSignedIn, userId } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams()
+  const tab = searchParams.get("tab") || "urls"
 
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +36,6 @@ export default function Home() {
   const [isLoadingUrls, setIsLoadingUrls] = useState(true);
   const [exceeded, setExceeded] = useState(false);
   const [exceededFiles, setExceededFiles] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("urls");
 
   const [files, setFiles] = useState<FileItem[]>([]);
   const [isLoadingFiles, setIsLoadingFiles] = useState(true);
@@ -56,11 +57,6 @@ export default function Home() {
       setIsLoadingFiles(false);
     }
   }, [isLoaded, isSignedIn, userId]);
-
-    useEffect(() => {
-      const saved = sessionStorage.getItem(TAB_STORAGE_KEY);
-      if (saved) setActiveTab(saved);
-    }, []);
 
   const loadUrls = async (accountId: string) => {
     try {
@@ -92,7 +88,7 @@ export default function Home() {
 
   const handleShorten = async () => {
     if (!isSignedIn) {
-      router.push("/auth/sign-in");
+      router.push(pages.AUTH);
       return;
     }
 
@@ -133,12 +129,12 @@ export default function Home() {
 
   const handleFileUpload = async (file: File) => {
     if (!isSignedIn) {
-      router.push("/auth/sign-in");
+      router.push(pages.AUTH);
       return;
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("Размер файла не должен превышать 15 МБ", toastConfig);
+      toast.error("Размер файла не должен превышать 10 МБ", toastConfig);
       return;
     }
 
@@ -185,158 +181,157 @@ export default function Home() {
               Быстро сокращайте ссылки и держите всё под рукой без лишнего шума
             </p>
 
-      
-            <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); try { sessionStorage.setItem(TAB_STORAGE_KEY, v); } catch (e) {} }}>
+            <Tabs value={tab} onValueChange={(v) => {router.replace(`/?tab=${v}`)}}>
               <TabsList className="mb-6 w-full">
-                <TabsTrigger value="urls" className="flex-1">Ссылки</TabsTrigger>
-                <TabsTrigger value="files" className="flex-1">Файлы</TabsTrigger>
+                  <TabsTrigger value="urls" className="flex-1">Ссылки</TabsTrigger>
+                  <TabsTrigger value="files" className="flex-1">Файлы</TabsTrigger>
               </TabsList>
 
-              {/* Urls */}
-              <TabsContent value="urls">
-                <Input
-                  placeholder="Введите ссылку"
-                  className="mb-3 h-11 rounded-xl border-border/90 bg-background/65 px-4 text-sm shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-2"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleShorten()}
-                />
-                <Button
-                  className="mb-8 h-11 w-full rounded-xl text-sm font-semibold"
-                  onClick={handleShorten}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Сокращение..." : "Сократить"}
-                </Button>
+              {tab !== "files" ? (
+                <TabsContent value="urls">
+                  <Input
+                    placeholder="Введите ссылку"
+                    className="mb-3 h-11 rounded-xl border-border/90 bg-background/65 px-4 text-sm shadow-none placeholder:text-muted-foreground/80 focus-visible:ring-2"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleShorten()}
+                  />
+                  <Button
+                    className="mb-8 h-11 w-full rounded-xl text-sm font-semibold"
+                    onClick={handleShorten}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Сокращение..." : "Сократить"}
+                  </Button>
 
-                <h2 className="mb-4 flex items-center justify-between text-base font-semibold sm:text-lg">
-                  <span>Недавние ссылки</span>
-                  {exceeded && (
-                    <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
-                      лимит превышен {urls.length}/100
-                    </span>
-                  )}
-                </h2>
+                  <h2 className="mb-4 flex items-center justify-between text-base font-semibold sm:text-lg">
+                    <span>Недавние ссылки</span>
+                    {exceeded && (
+                      <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
+                        лимит превышен {urls.length}/100
+                      </span>
+                    )}
+                  </h2>
 
-                <div className="space-y-2.5">
-                  {showSkeleton ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="animate-pulse rounded-2xl border border-border/90 bg-background/50 p-3"
-                      >
-                        <div className="flex items-center justify-between gap-4 max-[400px]:flex-col max-[400px]:items-start">
-                          <div className="h-4 w-40 rounded bg-muted" />
-                          <div className="flex items-center gap-3">
-                            <div className="h-4 w-4 rounded-full bg-muted" />
-                            <div className="h-4 w-16 rounded bg-muted" />
-                            <div className="h-5 w-5 rounded-full bg-muted" />
+                  <div className="space-y-2.5">
+                    {showSkeleton ? (
+                      Array.from({ length: 3 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="animate-pulse rounded-2xl border border-border/90 bg-background/50 p-3"
+                        >
+                          <div className="flex items-center justify-between gap-4 max-[400px]:flex-col max-[400px]:items-start">
+                            <div className="h-4 w-40 rounded bg-muted" />
+                            <div className="flex items-center gap-3">
+                              <div className="h-4 w-4 rounded-full bg-muted" />
+                              <div className="h-4 w-16 rounded bg-muted" />
+                              <div className="h-5 w-5 rounded-full bg-muted" />
+                            </div>
                           </div>
                         </div>
+                      ))
+                    ) : urls.length > 0 ? (
+                      urls.map((urlItem) => (
+                        <UrlCard
+                          key={urlItem.short_id}
+                          url={urlItem.url}
+                          shortId={urlItem.short_id}
+                          views={urlItem.views}
+                          onDelete={(id) => setUrls(urls.filter(u => u.short_id !== id))}
+                        />
+                      ))
+                    ) : isSignedIn ? (
+                      <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
+                        Ссылок пока нет
+                      </p>
+                    ) : (
+                      <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
+                        Войдите, чтобы начать сокращать ссылки
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              ) : (
+                <TabsContent value="files">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileInputChange}
+                  />
+                  <div
+                    className={`mb-8 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-4 py-10 transition-colors ${dragOver ? "border-primary/70 bg-primary/5" : "border-border/70 bg-background/40 hover:border-primary/50 hover:bg-background/60"}`}
+                    onClick={() => !isUploading && fileInputRef.current?.click()}
+                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={handleDrop}
+                  >
+                    {isUploading ? (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                        <span className="text-sm">Загрузка...</span>
                       </div>
-                    ))
-                  ) : urls.length > 0 ? (
-                    urls.map((urlItem) => (
-                      <UrlCard
-                        key={urlItem.short_id}
-                        url={urlItem.url}
-                        shortId={urlItem.short_id}
-                        views={urlItem.views}
-                        onDelete={(id) => setUrls(urls.filter(u => u.short_id !== id))}
-                      />
-                    ))
-                  ) : isSignedIn ? (
-                    <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
-                      Ссылок пока нет
-                    </p>
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
-                      Войдите, чтобы начать сокращать ссылки
-                    </p>
-                  )}
-                </div>
-              </TabsContent>
+                    ) : (
+                      <>
+                        <Upload size={28} className="text-muted-foreground/70" />
+                        <div className="text-center">
+                          <p className="text-sm font-medium text-foreground/80">Нажмите или перетащите файл</p>
+                          <p className="mt-1 text-xs text-muted-foreground">Любой формат, до 10 МБ</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
 
-              {/* Files */}
-              <TabsContent value="files">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  className="hidden"
-                  onChange={handleFileInputChange}
-                />
-                <div
-                  className={`mb-8 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-4 py-10 transition-colors ${dragOver ? "border-primary/70 bg-primary/5" : "border-border/70 bg-background/40 hover:border-primary/50 hover:bg-background/60"}`}
-                  onClick={() => !isUploading && fileInputRef.current?.click()}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-                  onDragLeave={() => setDragOver(false)}
-                  onDrop={handleDrop}
-                >
-                  {isUploading ? (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                      <span className="text-sm">Загрузка...</span>
-                    </div>
-                  ) : (
-                    <>
-                      <Upload size={28} className="text-muted-foreground/70" />
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-foreground/80">Нажмите или перетащите файл</p>
-                        <p className="mt-1 text-xs text-muted-foreground">Любой формат, до 15 МБ</p>
-                      </div>
-                    </>
-                  )}
-                </div>
+                  <h2 className="mb-4 text-base flex items-center justify-between font-semibold sm:text-lg">
+                    Загруженные файлы
+                    {exceededFiles && (
+                      <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
+                        лимит превышен {urls.length}/50
+                      </span>
+                    )}
+                  </h2>
 
-                <h2 className="mb-4 text-base flex items-center justify-between font-semibold sm:text-lg">
-                  Загруженные файлы
-                  {exceededFiles && (
-                    <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
-                      лимит превышен {urls.length}/50
-                    </span>
-                  )}
-                </h2>
-
-                <div className="space-y-2.5">
-                  {showFileSkeleton ? (
-                    Array.from({ length: 3 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="animate-pulse rounded-2xl border border-border/90 bg-background/50 p-3"
-                      >
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="h-4 w-48 rounded bg-muted" />
-                          <div className="flex items-center gap-3">
-                            <div className="h-4 w-4 rounded-full bg-muted" />
-                            <div className="h-4 w-4 rounded-full bg-muted" />
-                            <div className="h-5 w-5 rounded-full bg-muted" />
+                  <div className="space-y-2.5">
+                    {showFileSkeleton ? (
+                      Array.from({ length: 3 }).map((_, index) => (
+                        <div
+                          key={index}
+                          className="animate-pulse rounded-2xl border border-border/90 bg-background/50 p-3"
+                        >
+                          <div className="flex items-center justify-between gap-4">
+                            <div className="h-4 w-48 rounded bg-muted" />
+                            <div className="flex items-center gap-3">
+                              <div className="h-4 w-4 rounded-full bg-muted" />
+                              <div className="h-4 w-4 rounded-full bg-muted" />
+                              <div className="h-5 w-5 rounded-full bg-muted" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : files.length > 0 ? (
-                    files.map((file) => (
-                      <FileCard
-                        key={file.short_id}
-                        shortId={file.short_id}
-                        file_name={file.file_name}
-                        file_size={file.file_size}
-                        onDelete={(id) => setFiles(files.filter(f => f.short_id !== id))}
-                        downloads={file.downloads}
-                        expired={file.expires_in_seconds}
-                      />
-                    ))
-                  ) : isSignedIn ? (
-                    <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
-                      Файлов пока нет
-                    </p>
-                  ) : (
-                    <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
-                      Войдите, чтобы загружать файлы
-                    </p>
-                  )}
-                </div>
-              </TabsContent>
+                      ))
+                    ) : files.length > 0 ? (
+                      files.map((file) => (
+                        <FileCard
+                          key={file.short_id}
+                          shortId={file.short_id}
+                          file_name={file.file_name}
+                          file_size={file.file_size}
+                          onDelete={(id) => setFiles(files.filter(f => f.short_id !== id))}
+                          downloads={file.downloads}
+                          expired={file.expires_in_seconds}
+                        />
+                      ))
+                    ) : isSignedIn ? (
+                      <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
+                        Файлов пока нет
+                      </p>
+                    ) : (
+                      <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
+                        Войдите, чтобы загружать файлы
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+              )}
             </Tabs>
           </div>
         </div>
