@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Image from "next/image";
 import Header from "./_components/header";
 import Footer from "./_components/footer";
@@ -24,7 +25,7 @@ import { pages } from "@/config/routing/pages.route";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
 
-export default function Home() {
+function HomeContent() {
   const { isLoaded, isSignedIn, userId } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams()
@@ -338,5 +339,13 @@ export default function Home() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }
