@@ -18,7 +18,6 @@ import { toastConfig } from "@/config/const/toast.const";
 import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { FileCardProps } from "@/config/types/components.types";
-import { pages } from "@/config/routing/pages.route";
 import { links } from "@/config/routing/links.route";
 
 const formatRemaining = (secs: number) => {

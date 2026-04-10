@@ -9,6 +9,7 @@ import Image from "next/image";
 import { pages } from "@/config/routing/pages.route";
 import { getFile } from "@/app/api/files";
 import { links } from "@/config/routing/links.route";
+import NotFound from "@/app/not-found";
 
 const formatSize = (len: number) => {
     if (len >= 10 ** 6) return `${(len / 10 ** 6).toFixed(2)} MB`
@@ -51,17 +52,7 @@ export default function RedirectPage() {
   }, [id]);
 
   if (notFound) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-4">
-        <div className="w-full max-w-md rounded-3xl border border-border/90 bg-card/80 p-8 text-center shadow-[0_16px_80px_-45px_rgba(0,0,0,0.7)] backdrop-blur">
-          <h1 className="text-4xl font-semibold">404 ://</h1>
-          <p className="mt-2 text-sm text-muted-foreground sm:text-base">Файл не найден</p>
-          <Link href={pages.ROOT}>
-                <Button className="mt-6">Вернуться на главную</Button>
-          </Link>
-        </div>
-      </div>
-    );
+    return <NotFound text="Файл не найден" />;
   }
 
   const fileLink = links.GET_FILELINK(id);
