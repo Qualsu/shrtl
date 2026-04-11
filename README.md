@@ -1,8 +1,6 @@
 <img src="public/logo.svg" style="width: 200px">
 
-# Shortul
-
----
+# Shrtl://
 
 [shrtl.ru](https://shrtl.ru)
 
