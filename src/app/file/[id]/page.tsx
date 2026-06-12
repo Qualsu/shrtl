@@ -28,6 +28,7 @@ export default function RedirectPage() {
   const [fileName, setFileName] = useState("");
   const [isImage, setIsImage] = useState(false);
   const [fileLink, setFileLink] = useState("");
+  const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
     if (!id || hasExecuted.current) return;
@@ -36,10 +37,12 @@ export default function RedirectPage() {
     const loadFile = async () => {
       try {
         const file = await getFile(id);
+        const nextIsImage = file.file_type?.startsWith("image/") ?? false;
 
         setFileName(file.filename || file.file_name || id);
         setSize(formatSize(file.file_size));
-        setIsImage(file.file_type?.startsWith("image/") ?? false);
+        setIsImage(nextIsImage);
+        setIsImageLoading(nextIsImage);
         setFileLink(resolveFileLink(file, id));
       } catch (error) {
         console.error("Ошибка при получении файла:", error);
@@ -61,13 +64,25 @@ export default function RedirectPage() {
       ) : (
         <section className="mx-auto w-full max-w-3xl rounded-3xl border border-border/90 bg-background/60 p-6 shadow-[0_16px_80px_-45px_rgba(0,0,0,0.7)]">
           <div className="flex flex-col items-start gap-6 md:flex-row">
-            <div className="flex w-full items-center justify-center rounded-2xl bg-muted/5 md:w-1/3">
+            <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-border/60 bg-muted/10 md:w-1/3">
               {isImage ? (
-                <img
-                  src={fileLink}
-                  alt={fileName}
-                  className="max-h-48 w-full rounded-xl object-contain"
-                />
+                <div className="relative flex h-full w-full items-center justify-center">
+                  {isImageLoading ? (
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted/10">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : null}
+
+                  <img
+                    src={fileLink}
+                    alt={fileName}
+                    onLoad={() => setIsImageLoading(false)}
+                    onError={() => setIsImageLoading(false)}
+                    className={`h-full w-full object-contain transition-opacity duration-300 ${
+                      isImageLoading ? "opacity-0" : "opacity-100"
+                    }`}
+                  />
+                </div>
               ) : (
                 <div className="text-sm text-muted-foreground">Предпросмотр недоступен</div>
               )}
