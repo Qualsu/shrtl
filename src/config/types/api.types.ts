@@ -17,3 +17,15 @@ export interface FileItem {
   downloads: number;
   expires_in_seconds: number
 }
+
+export interface FileResponse {
+  short_id?: string;
+  file_name?: string;
+  filename?: string;
+  file_size: number;
+  file_type?: string;
+  s3_url?: string;
+  file_url?: string;
+  download_url?: string;
+  url?: string;
+}

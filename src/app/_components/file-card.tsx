@@ -21,7 +21,7 @@ import { FileCardProps } from "@/config/types/components.types";
 import { links } from "@/config/routing/links.route";
 
 const formatRemaining = (secs: number) => {
-  if (secs <= 0) return "Истёк";
+  if (secs <= 0) return "Истек";
   const days = Math.floor(secs / 86400);
   const hours = Math.floor((secs % 86400) / 3600);
   const minutes = Math.floor((secs % 3600) / 60);
@@ -84,7 +84,7 @@ export default function FileCard({ shortId, file_name, file_size: _size, downloa
   };
 
   return (
-    <div className={`rounded-2xl border border-border/90 bg-background/60 p-3 ${showDeleteDialog ? 'pointer-events-none opacity-80' : ''}`}>
+    <div className={`rounded-2xl border border-border/90 bg-background/60 p-3 ${showDeleteDialog ? "pointer-events-none opacity-80" : ""}`}>
       <div
         role="button"
         tabIndex={0}
@@ -97,82 +97,81 @@ export default function FileCard({ shortId, file_name, file_size: _size, downloa
         }}
         className="flex cursor-pointer flex-row items-center justify-between gap-3 max-[480px]:flex-col max-[480px]:items-start"
       >
-        <div className="flex items-center gap-2 min-w-0">
-        <File size={15} className="shrink-0 text-muted-foreground" />
-        <Link
-          href={fileUrl}
-          target="_blank"
-          onClick={(e) => e.stopPropagation()}
-          className="truncate text-sm font-medium text-primary/90 max-w-[200px] transition-colors hover:text-primary hover:underline"
-          title={file_name}
-        >
-          {file_name}
-        </Link>
-      </div>
-      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        <button
-          type="button"
-          aria-label="Скопировать ссылку на файл"
-          className="rounded-full h-8 w-8 flex items-center justify-center transition-colors hover:bg-accent/60 hover:text-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleCopyLink();
-          }}
-        >
-          <Copy size={15} />
-        </button>
-        
-        <div className="flex flex-row items-center gap-1 whitespace-nowrap">
+        <div className="min-w-0 flex items-center gap-2">
+          <File size={15} className="shrink-0 text-muted-foreground" />
           <Link
             href={fileUrl}
             target="_blank"
-            aria-label="Скачать файл"
             onClick={(e) => e.stopPropagation()}
-            className="rounded-full h-8 w-8 flex items-center justify-center transition-colors hover:bg-accent/60 hover:text-foreground"
+            className="max-w-[200px] truncate text-sm font-medium text-primary/90 transition-colors hover:text-primary hover:underline"
+            title={file_name}
           >
-            <Download size={15} /> 
+            {file_name}
           </Link>
-          {downloads} <span>Скачиваний</span>
         </div>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <button
+            type="button"
+            aria-label="Скопировать ссылку на файл"
+            className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-accent/60 hover:text-foreground"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopyLink();
+            }}
+          >
+            <Copy size={15} />
+          </button>
 
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogTrigger asChild>
-            <button
-              type="button"
-              aria-label="Удалить файл"
-                className="rounded-full h-8 w-8 flex items-center justify-center text-destructive transition-colors hover:bg-destructive/15"
+          <div className="flex flex-row items-center gap-1 whitespace-nowrap">
+            <Link
+              href={fileUrl}
+              target="_blank"
+              aria-label="Скачать файл"
               onClick={(e) => e.stopPropagation()}
+              className="flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-accent/60 hover:text-foreground"
             >
-              <X size={16} />
-            </button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Удалить файл?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Вы уверены, что хотите удалить этот файл? Это действие
-                невозможно отменить.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="flex justify-end gap-3">
-              <AlertDialogCancel disabled={isDeleting}>Отмена</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
-                {isDeleting ? (
-                  <>
-                    <Loader2 size={16} className="mr-2 animate-spin inline" />
-                    Удаление...
-                  </>
-                ) : (
-                  "Удалить"
-                )}
-              </AlertDialogAction>
-            </div>
-          </AlertDialogContent>
-        </AlertDialog>
+              <Download size={15} />
+            </Link>
+            {downloads} <span>Скачиваний</span>
+          </div>
+
+          <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                aria-label="Удалить файл"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-destructive transition-colors hover:bg-destructive/15"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <X size={16} />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Удалить файл?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Вы уверены, что хотите удалить этот файл? Это действие невозможно отменить.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="flex justify-end gap-3">
+                <AlertDialogCancel disabled={isDeleting}>Отмена</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} disabled={isDeleting}>
+                  {isDeleting ? (
+                    <>
+                      <Loader2 size={16} className="mr-2 inline animate-spin" />
+                      Удаление...
+                    </>
+                  ) : (
+                    "Удалить"
+                  )}
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
-      <div className="w-full text-xs text-muted-foreground mt-2">Осталось: {formatRemaining(remaining)}</div>
+      <div className="mt-2 w-full text-xs text-muted-foreground">Осталось: {formatRemaining(remaining)}</div>
     </div>
   );
 }
