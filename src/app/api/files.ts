@@ -1,5 +1,6 @@
 import { api } from "@/config/const/api.const";
 import { API } from "@/config/routing/api.route";
+import { FileResponse } from "@/config/types/api.types";
 
 export async function getAllFiles(account_id: string) {
   const res = await api.get(API.FILES.GET_ALL(account_id));
@@ -7,8 +8,8 @@ export async function getAllFiles(account_id: string) {
 }
 
 export async function getFile(short_id: string) {
-  const res = await api.get(API.FILES.GET(short_id));
-  return res;
+  const res = await api.get<FileResponse>(API.FILES.GET(short_id));
+  return res.data;
 }
 
 export async function uploadFile(account_id: string, file: File) {
