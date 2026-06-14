@@ -21,23 +21,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkThemeProvider>
-        <html lang="ru">
-          <body className={`${font.className} antialiased`}>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
+    <html lang="ru" suppressHydrationWarning>
+      <body className={`${font.className} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClerkThemeProvider>
             <Toaster
               position="bottom-center"
               reverseOrder={false}
             />
             {children}
-            </ThemeProvider>
-          </body>
-        </html>
-    </ClerkThemeProvider>
+          </ClerkThemeProvider>
+        </ThemeProvider>
+      </body>
+    </html>
   );
 }
