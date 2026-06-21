@@ -40,7 +40,6 @@ export default function RedirectPage() {
         const nextIsImage = file.file_type?.startsWith("image/") ?? false;
         const name = file.filename || file.file_name || id;
 
-        document.title = name;
         setFileName(name);
         setSize(formatSize(file.file_size));
         setIsImage(nextIsImage);
