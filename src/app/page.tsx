@@ -45,6 +45,10 @@ function HomeContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    document.title = tab === "files" ? "Shrtl:// | Файлы" : "Shrtl:// | Ссылки";
+  }, [tab]);
+
+  useEffect(() => {
     if (!isLoaded) return;
     if (isSignedIn && userId) {
       loadUrls(userId);

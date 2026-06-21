@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 const font = Manrope({ subsets: ['latin', 'cyrillic'] })
 
 export const metadata: Metadata = {
-  title: "Shrtl",
+  title: "Shrtl://",
   description: "Сокращай и еще раз сокращай",
   icons: {
     icon: "/icon.svg",
