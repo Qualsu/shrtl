@@ -38,8 +38,9 @@ export default function RedirectPage() {
       try {
         const file = await getFile(id);
         const nextIsImage = file.file_type?.startsWith("image/") ?? false;
+        const name = file.filename || file.file_name || id;
 
-        setFileName(file.filename || file.file_name || id);
+        setFileName(name);
         setSize(formatSize(file.file_size));
         setIsImage(nextIsImage);
         setIsImageLoading(nextIsImage);

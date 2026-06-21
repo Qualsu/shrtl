@@ -20,7 +20,7 @@ import { URLItem, FileItem } from "@/config/types/api.types";
 import { images } from "@/config/routing/images.route";
 import { toastConfig } from "@/config/const/toast.const";
 import { links } from "@/config/routing/links.route";
-import { Upload } from "lucide-react";
+import { Check, Upload } from "lucide-react";
 import { pages } from "@/config/routing/pages.route";
 
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;
@@ -42,6 +42,7 @@ function HomeContent() {
   const [isLoadingFiles, setIsLoadingFiles] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [showExpired, setShowExpired] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -167,6 +168,7 @@ function HomeContent() {
 
   const showSkeleton = !isLoaded || (isSignedIn && isLoadingUrls);
   const showFileSkeleton = !isLoaded || (isSignedIn && isLoadingFiles);
+  const filteredFiles = showExpired ? files : files.filter(f => f.expires_in_seconds > 0);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -285,11 +287,25 @@ function HomeContent() {
 
                   <h2 className="mb-4 text-base flex items-center justify-between font-semibold sm:text-lg">
                     Загруженные файлы
-                    {exceededFiles && (
-                      <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
-                        лимит превышен {urls.length}/50
-                      </span>
-                    )}
+                    <span className="flex items-center gap-3">
+                      <label className="flex cursor-pointer select-none items-center gap-1.5">
+                        <input
+                          type="checkbox"
+                          className="sr-only"
+                          checked={showExpired}
+                          onChange={(e) => setShowExpired(e.target.checked)}
+                        />
+                        <div className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${showExpired ? "border-primary bg-primary" : "border-border/70 bg-transparent"}`}>
+                          {showExpired && <Check size={12} className="text-primary-foreground" />}
+                        </div>
+                        <span className="text-xs text-muted-foreground">Истекшие</span>
+                      </label>
+                      {exceededFiles && (
+                        <span className="rounded-full px-2 py-1 text-xs font-medium text-red-400 text-right md:text-center">
+                          лимит превышен {urls.length}/50
+                        </span>
+                      )}
+                    </span>
                   </h2>
 
                   <div className="space-y-2.5">
@@ -309,8 +325,8 @@ function HomeContent() {
                           </div>
                         </div>
                       ))
-                    ) : files.length > 0 ? (
-                      files.map((file) => (
+                    ) : filteredFiles.length > 0 ? (
+                      filteredFiles.map((file) => (
                         <FileCard
                           key={file.short_id}
                           shortId={file.short_id}
@@ -321,6 +337,10 @@ function HomeContent() {
                           expired={file.expires_in_seconds}
                         />
                       ))
+                    ) : files.length > 0 ? (
+                      <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
+                        Нет активных файлов
+                      </p>
                     ) : isSignedIn ? (
                       <p className="rounded-2xl border border-dashed border-border/80 px-4 py-6 text-center text-sm text-muted-foreground">
                         Файлов пока нет
