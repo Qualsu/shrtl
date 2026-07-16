@@ -33,7 +33,7 @@ const formatRemaining = (secs: number) => {
 };
 
 export default function FileCard({ shortId, file_name, file_size: _size, downloads, expired, onDelete }: FileCardProps) {
-  const { userId } = useAuth();
+  const { isSignedIn } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -64,14 +64,14 @@ export default function FileCard({ shortId, file_name, file_size: _size, downloa
   };
 
   const handleDelete = async () => {
-    if (!userId) {
+    if (!isSignedIn) {
       toast.error("Нужно войти в аккаунт", toastConfig);
       return;
     }
 
     setIsDeleting(true);
     try {
-      await deleteFile(userId, shortId);
+      await deleteFile(shortId);
       toast.success("Файл удалён!", toastConfig);
       setShowDeleteDialog(false);
       onDelete?.(shortId);
