@@ -1,16 +1,16 @@
 export const API = {
     ROOT: "/",
     USERS: {
-        GET: (account_id: string) => `/users/get/${account_id}`
+        GET: "/users/me"
     },
     URLS: {
-        GET_ALL: (account_id: string) => `/urls/get_all/${account_id}`,
+        GET_ALL: "/urls/get_all",
         GET: (short_id: string) => `/urls/get/${short_id}`,
         CREATE: "/urls/create",
         DELETE: "/urls/delete"
     },
     FILES: {
-        GET_ALL: (account_id: string) => `/files/get_all/${account_id}`,
+        GET_ALL: "/files/get_all",
         GET: (short_id: string) => `/files/get/${short_id}`,
         UPLOAD: "/files/upload",
         DELETE: "/files/delete"

@@ -3,6 +3,7 @@ import { Manrope } from 'next/font/google'
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
 import { ClerkThemeProvider } from "@/components/clerk-theme-provider";
+import { ApiAuthProvider } from "@/components/provider/api-auth-provider";
 import { Toaster } from "react-hot-toast";
 
 const font = Manrope({ subsets: ['latin', 'cyrillic'] })
@@ -30,11 +31,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ClerkThemeProvider>
-            <Toaster
-              position="bottom-center"
-              reverseOrder={false}
-            />
-            {children}
+            <ApiAuthProvider>
+              <Toaster
+                position="bottom-center"
+                reverseOrder={false}
+              />
+              {children}
+            </ApiAuthProvider>
           </ClerkThemeProvider>
         </ThemeProvider>
       </body>

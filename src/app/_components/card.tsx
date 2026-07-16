@@ -27,7 +27,7 @@ export default function UrlCard({
   onCopy,
   onDelete,
 }: UrlCardProps) {
-  const { userId } = useAuth();
+  const { isSignedIn } = useAuth();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [baseUrl, setBaseUrl] = useState("");
@@ -43,14 +43,14 @@ export default function UrlCard({
   };
 
   const handleDeleteLink = async () => {
-    if (!userId) {
+    if (!isSignedIn) {
       toast.error("Нужно войти в аккаунт", toastConfig);
       return;
     }
 
     setIsDeleting(true);
     try {
-      await deleteUrl(userId, shortId);
+      await deleteUrl(shortId);
       toast.success("Ссылка удалена!", toastConfig);
       setShowDeleteDialog(false);
       onDelete?.(shortId);

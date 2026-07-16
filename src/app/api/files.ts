@@ -2,8 +2,8 @@ import { api } from "@/config/const/api.const";
 import { API } from "@/config/routing/api.route";
 import { FileResponse } from "@/config/types/api.types";
 
-export async function getAllFiles(account_id: string) {
-  const res = await api.get(API.FILES.GET_ALL(account_id));
+export async function getAllFiles() {
+  const res = await api.get(API.FILES.GET_ALL);
   return res.data;
 }
 
@@ -12,9 +12,8 @@ export async function getFile(short_id: string) {
   return res.data;
 }
 
-export async function uploadFile(account_id: string, file: File) {
+export async function uploadFile(file: File) {
   const formData = new FormData();
-  formData.append("account_id", account_id);
   formData.append("file", file);
   const res = await api.post(API.FILES.UPLOAD, formData, {
     headers: { "Content-Type": "multipart/form-data" },
@@ -22,8 +21,8 @@ export async function uploadFile(account_id: string, file: File) {
   return res.data;
 }
 
-export async function deleteFile(account_id: string, short_id: string) {
-  const res = await api.delete(API.FILES.DELETE, { data: { account_id, short_id } });
+export async function deleteFile(short_id: string) {
+  const res = await api.delete(API.FILES.DELETE, { data: { short_id } });
   return res.data;
 }
 

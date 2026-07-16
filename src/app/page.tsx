@@ -48,8 +48,8 @@ function HomeContent() {
   useEffect(() => {
     if (!isLoaded) return;
     if (isSignedIn && userId) {
-      loadUrls(userId);
-      loadFiles(userId);
+      loadUrls();
+      loadFiles();
     } else {
       setUrls([]);
       setExceeded(false);
@@ -60,13 +60,13 @@ function HomeContent() {
     }
   }, [isLoaded, isSignedIn, userId]);
 
-  const loadUrls = async (accountId: string) => {
+  const loadUrls = async () => {
     try {
       setIsLoadingUrls(true);
-      const data = await getAll(accountId);
+      const data = await getAll();
       setUrls(data.urls || []);
-      
-      const userData = await getUser(accountId);
+
+      const userData = await getUser();
       setExceeded(userData.exceeded || false);
       setExceededFiles(userData.exceeded_files || false);
     } catch (error) {
@@ -76,10 +76,10 @@ function HomeContent() {
     }
   };
 
-  const loadFiles = async (accountId: string) => {
+  const loadFiles = async () => {
     try {
       setIsLoadingFiles(true);
-      const data = await getAllFiles(accountId);
+      const data = await getAllFiles();
       setFiles(data.files || []);
     } catch (error) {
       console.error("Ошибка при загрузке файлов:", error);
@@ -112,10 +112,10 @@ function HomeContent() {
     setIsLoading(true);
     try {
       const finalUrl = links.NORMALIZE(url);
-      await createUrl(userId!, finalUrl);
+      await createUrl(finalUrl);
       toast.success("Ссылка сокращена!", toastConfig);
       setUrl("");
-      await loadUrls(userId!);
+      await loadUrls();
     } catch (error) {
       if (error instanceof TypeError) {
         toast.error("Введите корректную ссылку", toastConfig);
@@ -142,9 +142,9 @@ function HomeContent() {
 
     setIsUploading(true);
     try {
-      await uploadFile(userId!, file);
+      await uploadFile(file);
       toast.success("Файл загружен!", toastConfig);
-      await loadFiles(userId!);
+      await loadFiles();
     } catch (error) {
       toast.error("Ошибка при загрузке файла", toastConfig);
       console.error(error);
