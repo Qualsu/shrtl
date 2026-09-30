@@ -14,6 +14,17 @@ const nextConfig = {
                 port: '8005',
                 pathname: '/files/**',
             },
+            {
+                protocol: 'https',
+                hostname: 'api.qualsu.ru',
+                port: '8005',
+                pathname: '/files/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'api.qualsu.ru',
+                pathname: '/files/**',
+            },
         ]
     }
 };
